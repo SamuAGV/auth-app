@@ -2,6 +2,8 @@ import { useState } from "react";
 import { register, confirmRegistration, resendConfirmationCode } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
+import { Mail, Lock, User, ArrowLeft, Shield, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import "./LoginPage.css";
 
 type Step = "register" | "confirm";
@@ -12,6 +14,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -19,25 +23,24 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
+  const passwordRequirements = [
+    { label: "Al menos 8 caracteres", test: (p: string) => p.length >= 8 },
+    { label: "Una letra mayúscula", test: (p: string) => /[A-Z]/.test(p) },
+    { label: "Una letra minúscula", test: (p: string) => /[a-z]/.test(p) },
+    { label: "Un número", test: (p: string) => /[0-9]/.test(p) },
+    { label: "Un carácter especial", test: (p: string) => /[!@#$%^&*(),.?":{}|<>]/.test(p) },
+  ];
+
   const validatePassword = (): string | null => {
-    if (password.length < 8) {
-      return "La contraseña debe tener al menos 8 caracteres.";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "La contraseña debe tener al menos una mayúscula.";
-    }
-    if (!/[a-z]/.test(password)) {
-      return "La contraseña debe tener al menos una minúscula.";
-    }
-    if (!/[0-9]/.test(password)) {
-      return "La contraseña debe tener al menos un número.";
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      return "La contraseña debe tener al menos un carácter especial.";
-    }
     if (password !== confirmPassword) {
       return "Las contraseñas no coinciden.";
     }
+    
+    const failedRequirement = passwordRequirements.find(req => !req.test(password));
+    if (failedRequirement) {
+      return `La contraseña debe tener: ${failedRequirement.label.toLowerCase()}`;
+    }
+    
     return null;
   };
 
@@ -58,7 +61,7 @@ export default function RegisterPage() {
       
       if (response.nextStep?.signUpStep === "CONFIRM_SIGN_UP") {
         setStep("confirm");
-        showToast("Código de verificación enviado", "success");
+        showToast("Código de verificación enviado a tu correo", "success");
       } else if (response.nextStep?.signUpStep === "DONE") {
         showToast("Cuenta creada correctamente", "success");
         navigate("/");
@@ -116,7 +119,7 @@ export default function RegisterPage() {
 
     try {
       await resendConfirmationCode(email);
-      showToast("Nuevo código enviado", "success");
+      showToast("Nuevo código enviado a tu correo", "success");
     } catch (err) {
       console.error(err);
       showToast("Error al reenviar código", "error");
@@ -125,146 +128,348 @@ export default function RegisterPage() {
     }
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="logo">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 32 32"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
+      {/* Elementos de fondo */}
+      <motion.div 
+        className="grid-background"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.2 }}
+        transition={{ duration: 1.5 }}
+      />
+
+      <motion.div 
+        className="tech-circle tech-circle-1"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 1, delay: 0.3 }}
+      />
+
+      <motion.div 
+        className="tech-circle tech-circle-2"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
+      />
+
+      {/* Botón de retroceso */}
+      <motion.button
+        className="back-button"
+        onClick={() => navigate("/")}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Volver al inicio"
+      >
+        <ArrowLeft size={20} />
+      </motion.button>
+
+      {/* Tarjeta de registro */}
+      <motion.div 
+        className="login-card"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          delay: 0.1,
+        }}
+      >
+        {/* Logo */}
+        <motion.div 
+          className="logo-container"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <div className="logo-wrapper">
+            <div className="logo-glow"></div>
+            <motion.div 
+              className="logo-icon"
+              onClick={() => navigate("/")}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <rect width="32" height="32" rx="8" fill="white" />
-              <circle cx="16" cy="12" r="4" stroke="#0a0a0a" strokeWidth="2.5" />
-              <path
-                d="M10 24C10 20.6863 12.6863 18 16 18C19.3137 18 22 20.6863 22 24"
-                stroke="#0a0a0a"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
+              <svg
+                width="60"
+                height="60"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect width="32" height="32" rx="8" fill="#0ea5e9" />
+                <circle cx="16" cy="12" r="4" stroke="white" strokeWidth="2.5" />
+                <path
+                  d="M10 24C10 20.6863 12.6863 18 16 18C19.3137 18 22 20.6863 22 24"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </motion.div>
           </div>
+        </motion.div>
+
+        {/* Header */}
+        <motion.div 
+          className="login-header"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
           <h1>{step === "register" ? "Crear cuenta" : "Verificar cuenta"}</h1>
           <h2>
             {step === "register"
               ? "Completa el formulario para registrarte"
               : "Ingresa el código enviado a tu correo"}
           </h2>
-        </div>
+        </motion.div>
 
+        {/* Mensaje de error */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="error-message"
+              role="alert"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                <path
+                  d="M8 4.5V8.5M8 11V11.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>{error}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Formulario */}
         {step === "register" ? (
           <form onSubmit={handleRegister} className="login-form">
-            {error && (
-              <div className="error-message" role="alert" aria-live="polite">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                  <path
-                    d="M8 4.5V8.5M8 11V11.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="form-group">
+            {/* Campo de nombre */}
+            <motion.div 
+              className="form-group"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <label htmlFor="name">Nombre completo</label>
-              <input
-                id="name"
-                type="text"
-                placeholder="Juan Pérez"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoComplete="name"
-                disabled={isLoading}
-              />
-            </div>
+              <div className="input-wrapper">
+                <User className="input-icon" size={18} />
+                <input
+                  id="name"
+                  type="text"
+                  className="login-input"
+                  placeholder="      Juan Pérez"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  autoComplete="name"
+                  disabled={isLoading}
+                />
+              </div>
+            </motion.div>
 
-            <div className="form-group">
+            {/* Campo de email */}
+            <motion.div 
+              className="form-group"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
               <label htmlFor="email">Correo electrónico</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="nombre@ejemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                disabled={isLoading}
-              />
-            </div>
+              <div className="input-wrapper">
+                <Mail className="input-icon" size={18} />
+                <input
+                  id="email"
+                  type="email"
+                  className="login-input"
+                  placeholder="      nombre@ejemplo.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  disabled={isLoading}
+                />
+              </div>
+            </motion.div>
 
-            <div className="form-group">
+            {/* Campo de contraseña CON ver contraseña */}
+            <motion.div 
+              className="form-group"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+            >
               <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                disabled={isLoading}
-              />
-            </div>
+              <div className="password-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className="password-input"
+                  placeholder="      Crea una contraseña segura"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={toggleShowPassword}
+                  disabled={isLoading}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </motion.div>
 
-            <div className="form-group">
+            {/* Campo de confirmar contraseña CON ver contraseña */}
+            <motion.div 
+              className="form-group"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+            >
               <label htmlFor="confirmPassword">Confirmar contraseña</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                placeholder="Repite tu contraseña"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                disabled={isLoading}
-              />
-            </div>
+              <div className="password-wrapper">
+                <Lock className="input-icon" size={18} />
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="password-input"
+                  placeholder="      Repite tu contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={toggleShowConfirmPassword}
+                  disabled={isLoading}
+                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </motion.div>
 
-            <div className="password-requirements" style={{
-              fontSize: "0.75rem",
-              color: "var(--muted-foreground)",
-              padding: "0.75rem",
-              background: "var(--secondary)",
-              borderRadius: "0.5rem",
-              lineHeight: 1.6,
-            }}>
-              <p style={{ margin: 0, marginBottom: "0.5rem", fontWeight: 500 }}>La contraseña debe tener:</p>
-              <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-                <li style={{ color: password.length >= 8 ? "var(--accent)" : undefined }}>
-                  Al menos 8 caracteres
-                </li>
-                <li style={{ color: /[A-Z]/.test(password) ? "var(--accent)" : undefined }}>
-                  Una letra mayúscula
-                </li>
-                <li style={{ color: /[a-z]/.test(password) ? "var(--accent)" : undefined }}>
-                  Una letra minúscula
-                </li>
-                <li style={{ color: /[0-9]/.test(password) ? "var(--accent)" : undefined }}>
-                  Un número
-                </li>
-                <li style={{ color: /[!@#$%^&*(),.?":{}|<>]/.test(password) ? "var(--accent)" : undefined }}>
-                  Un carácter especial
-                </li>
+            {/* Requisitos de contraseña */}
+            <motion.div 
+              className="password-requirements"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+              style={{
+                background: "rgba(15, 23, 42, 0.5)",
+                borderRadius: "8px",
+                padding: "1rem",
+                border: "1px solid rgba(14, 165, 233, 0.1)",
+              }}
+            >
+              <p style={{ 
+                margin: "0 0 0.75rem 0", 
+                color: "#f8fafc", 
+                fontSize: "0.875rem",
+                fontWeight: 500 
+              }}>
+                Requisitos de seguridad:
+              </p>
+              <ul style={{ 
+                margin: 0, 
+                padding: 0, 
+                listStyle: "none",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem"
+              }}>
+                {passwordRequirements.map((req, index) => (
+                  <motion.li
+                    key={index}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1 + index * 0.1 }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      fontSize: "0.75rem",
+                      color: req.test(password) ? "#4ade80" : "#94a3b8",
+                      transition: "color 0.3s ease",
+                    }}
+                  >
+                    {req.test(password) ? (
+                      <CheckCircle size={14} />
+                    ) : (
+                      <XCircle size={14} />
+                    )}
+                    {req.label}
+                  </motion.li>
+                ))}
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.5 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontSize: "0.75rem",
+                    color: password && confirmPassword && password === confirmPassword ? "#4ade80" : "#94a3b8",
+                    transition: "color 0.3s ease",
+                  }}
+                >
+                  {password && confirmPassword && password === confirmPassword ? (
+                    <CheckCircle size={14} />
+                  ) : (
+                    <XCircle size={14} />
+                  )}
+                  Las contraseñas coinciden
+                </motion.li>
               </ul>
-            </div>
+            </motion.div>
 
-            <button type="submit" disabled={isLoading}>
+            {/* Botón de registro */}
+            <motion.button
+              type="submit"
+              className="login-button"
+              disabled={isLoading}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.1 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
               {isLoading ? (
                 <span className="loading-spinner">
                   <svg
@@ -274,7 +479,6 @@ export default function RegisterPage() {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="spinner"
-                    aria-hidden="true"
                   >
                     <circle
                       cx="10"
@@ -292,104 +496,85 @@ export default function RegisterPage() {
               ) : (
                 "Crear cuenta"
               )}
-            </button>
+            </motion.button>
           </form>
         ) : (
           <form onSubmit={handleConfirmation} className="login-form">
-            {error && (
-              <div className="error-message" role="alert" aria-live="polite">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                  <path
-                    d="M8 4.5V8.5M8 11V11.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="confirmation-info" style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.75rem",
-              padding: "1rem",
-              background: "var(--secondary)",
-              borderRadius: "0.5rem",
-              marginBottom: "0.5rem",
-            }}>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ flexShrink: 0, color: "var(--accent)" }}
-              >
-                <path
-                  d="M2 5L10 10L18 5M2 5V15C2 16.1046 2.89543 17 4 17H16C17.1046 17 18 16.1046 18 15V5M2 5C2 3.89543 2.89543 3 4 3H16C17.1046 3 18 3.89543 18 5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            {/* Información de confirmación */}
+            <motion.div 
+              className="confirmation-info"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                padding: "1rem",
+                background: "rgba(14, 165, 233, 0.1)",
+                borderRadius: "8px",
+                border: "1px solid rgba(14, 165, 233, 0.2)",
+              }}
+            >
+              <Mail size={20} style={{ color: "#0ea5e9", flexShrink: 0 }} />
               <div>
-                <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--foreground)" }}>
+                <p style={{ margin: 0, fontSize: "0.875rem", color: "#f8fafc" }}>
                   Código enviado a:
                 </p>
-                <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--muted-foreground)" }}>
+                <p style={{ margin: 0, fontSize: "0.75rem", color: "#94a3b8" }}>
                   {email}
                 </p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="form-group">
+            {/* Campo de código de verificación */}
+            <motion.div 
+              className="form-group"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <div className="label-row">
                 <label htmlFor="code">Código de verificación</label>
                 <button 
                   type="button" 
                   onClick={handleResendCode}
                   disabled={isResending}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    width: "auto",
-                    fontSize: "0.75rem",
-                    color: "var(--muted-foreground)",
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    fontWeight: 400,
-                  }}
+                  className="forgot-link"
+                  style={{ fontSize: "0.75rem" }}
                 >
                   {isResending ? "Enviando..." : "Reenviar código"}
                 </button>
               </div>
-              <input
-                id="code"
-                type="text"
-                placeholder="123456"
-                value={confirmationCode}
-                onChange={(e) => setConfirmationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                required
-                autoComplete="one-time-code"
-                disabled={isLoading}
-                maxLength={6}
-                style={{ letterSpacing: "0.5em", textAlign: "center" }}
-              />
-            </div>
+              <div className="input-wrapper">
+                <Shield className="input-icon" size={18} />
+                <input
+                  id="code"
+                  type="text"
+                  className="login-input"
+                  placeholder="123456"
+                  value={confirmationCode}
+                  onChange={(e) => setConfirmationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  required
+                  autoComplete="one-time-code"
+                  disabled={isLoading}
+                  maxLength={6}
+                  style={{ letterSpacing: "0.5em", textAlign: "center", fontSize: "1.2rem" }}
+                />
+              </div>
+            </motion.div>
 
-            <button type="submit" disabled={isLoading}>
+            {/* Botón de verificación */}
+            <motion.button
+              type="submit"
+              className="login-button"
+              disabled={isLoading}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
               {isLoading ? (
                 <span className="loading-spinner">
                   <svg
@@ -399,7 +584,6 @@ export default function RegisterPage() {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="spinner"
-                    aria-hidden="true"
                   >
                     <circle
                       cx="10"
@@ -417,36 +601,62 @@ export default function RegisterPage() {
               ) : (
                 "Verificar cuenta"
               )}
-            </button>
+            </motion.button>
 
-            <button
+            {/* Botón para volver al registro */}
+            <motion.button
               type="button"
               onClick={() => setStep("register")}
+              className="register-button"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
               style={{
-                background: "var(--secondary)",
-                color: "var(--foreground)",
+                background: "rgba(15, 23, 42, 0.8)",
+                border: "1px solid rgba(14, 165, 233, 0.3)",
+                color: "#38bdf8",
+                padding: "0.9rem",
+                borderRadius: "8px",
+                fontSize: "1rem",
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                marginTop: "0.5rem",
               }}
             >
               Volver al registro
-            </button>
+            </motion.button>
           </form>
         )}
 
-        <div className="login-footer">
+        {/* Footer */}
+        <motion.div
+          className="login-footer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+        >
           <p>
             ¿Ya tienes una cuenta?{" "}
             <a href="/">Iniciar sesión</a>
           </p>
-        </div>
+        </motion.div>
 
-        <div className="security-note">
+        {/* Nota de seguridad */}
+        <motion.div
+          className="security-note"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1.3 }}
+        >
           <svg
             width="14"
             height="14"
             viewBox="0 0 14 14"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
           >
             <path
               d="M7 1L2 3.5V6.5C2 9.85 4.14 12.935 7 13.75C9.86 12.935 12 9.85 12 6.5V3.5L7 1Z"
@@ -464,8 +674,8 @@ export default function RegisterPage() {
             />
           </svg>
           <span>Tu información está protegida con encriptación</span>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
