@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { confirmMfa } from "../services/authService";
 import { useToast } from "../components/Toast";
-import AuthCard from "../components/AuthCard";
-import "./MfaPage.css";
+import { Shield, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import "./LoginPage.css";
 
 export default function MfaPage() {
   const [code, setCode] = useState("");
@@ -53,110 +54,242 @@ export default function MfaPage() {
     }
   };
 
-  const ShieldIcon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
-      />
-    </svg>
-  );
-
   return (
-    <AuthCard
-      icon={ShieldIcon}
-      title="Verificación MFA"
-      subtitle="Ingresa el código de 6 dígitos de tu app de autenticación"
-    >
-      <form onSubmit={handleConfirm} className="mfa-form">
-        {error && (
-          <div className="error-message" role="alert">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-              <path
-                d="M8 4.5V8.5M8 11V11.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span>{error}</span>
-          </div>
-        )}
+    <div className="login-container">
+      {/* Elementos de fondo */}
+      <motion.div 
+        className="grid-background"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.2 }}
+        transition={{ duration: 1.5 }}
+      />
 
-        <div className="form-group">
-          <label htmlFor="mfa-code" className="sr-only">
-            Código de verificación
-          </label>
-          <input
-            id="mfa-code"
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            className="mfa-input"
-            placeholder="000000"
-            value={code}
-            onChange={handleCodeChange}
-            maxLength={6}
-            aria-label="Código de verificación de 6 dígitos"
-            aria-describedby={error ? "mfa-error" : undefined}
-            aria-invalid={!!error}
-            disabled={isLoading}
-          />
-          <p className="input-hint">
-            Abre tu app de autenticación para ver el código
-          </p>
-        </div>
+      <motion.div 
+        className="tech-circle tech-circle-1"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 1, delay: 0.3 }}
+      />
 
-        <button
-          type="submit"
-          className="mfa-button"
-          disabled={isLoading || code.length !== 6}
+      <motion.div 
+        className="tech-circle tech-circle-2"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
+      />
+
+      {/* Botón de retroceso */}
+      <motion.button
+        className="back-button"
+        onClick={() => navigate("/")}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Volver al inicio"
+      >
+        <ArrowLeft size={20} />
+      </motion.button>
+
+      {/* Tarjeta MFA */}
+      <motion.div 
+        className="login-card"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          delay: 0.1,
+        }}
+      >
+        {/* Logo con icono de Shield */}
+        <motion.div 
+          className="logo-container"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
-          {isLoading ? (
-            <span className="loading-spinner">
+          <div className="logo-wrapper">
+            <div className="logo-glow"></div>
+            <motion.div 
+              className="logo-icon"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Shield size={60} color="#0ea5e9" />
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Header */}
+        <motion.div 
+          className="login-header"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <h1>Verificación MFA</h1>
+          <h2>Ingresa el código de 6 dígitos de tu app de autenticación</h2>
+        </motion.div>
+
+        {/* Mensaje de error */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="error-message"
+              role="alert"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="spinner"
-                aria-hidden="true"
               >
-                <circle
-                  cx="10"
-                  cy="10"
-                  r="8"
+                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                <path
+                  d="M8 4.5V8.5M8 11V11.5"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
-                  strokeDasharray="50"
-                  strokeDashoffset="20"
                 />
               </svg>
-              Verificando...
-            </span>
-          ) : (
-            "Verificar"
+              <span>{error}</span>
+            </motion.div>
           )}
-        </button>
-      </form>
-    </AuthCard>
+        </AnimatePresence>
+
+        {/* Formulario */}
+        <form onSubmit={handleConfirm} className="login-form">
+          {/* Campo de código */}
+          <motion.div 
+            className="form-group"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <div className="input-wrapper">
+              <Shield className="input-icon" size={18} />
+              <input
+                id="mfa-code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                className="login-input"
+                placeholder="000000"
+                value={code}
+                onChange={handleCodeChange}
+                maxLength={6}
+                disabled={isLoading}
+                style={{ 
+                  letterSpacing: "0.5em", 
+                  textAlign: "center", 
+                  fontSize: "1.5rem",
+                  fontFamily: "'SF Mono', 'Roboto Mono', monospace",
+                  fontWeight: 600
+                }}
+              />
+            </div>
+            <p className="input-hint" style={{
+              margin: "0.5rem 0 0 0",
+              fontSize: "0.75rem",
+              color: "#94a3b8",
+              textAlign: "center"
+            }}>
+              Abre tu app de autenticación para ver el código
+            </p>
+          </motion.div>
+
+          {/* Botón de verificación */}
+          <motion.button
+            type="submit"
+            className="login-button"
+            disabled={isLoading || code.length !== 6}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {isLoading ? (
+              <span className="loading-spinner">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="spinner"
+                >
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray="50"
+                    strokeDashoffset="20"
+                  />
+                </svg>
+                Verificando...
+              </span>
+            ) : (
+              "Verificar"
+            )}
+          </motion.button>
+        </form>
+
+        {/* Footer */}
+        <motion.div
+          className="login-footer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+        >
+          <p>
+            <a href="/">Volver al inicio de sesión</a>
+          </p>
+        </motion.div>
+
+        {/* Nota de seguridad */}
+        <motion.div
+          className="security-note"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7 1L2 3.5V6.5C2 9.85 4.14 12.935 7 13.75C9.86 12.935 12 9.85 12 6.5V3.5L7 1Z"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5 7L6.5 8.5L9 5.5"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>Autenticación de dos factores activa</span>
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }

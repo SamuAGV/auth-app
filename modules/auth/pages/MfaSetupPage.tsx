@@ -3,8 +3,9 @@ import { confirmSignIn } from "aws-amplify/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "../components/Toast";
-import AuthCard from "../components/AuthCard";
-import "./MfaPage.css";
+import { QrCode, ArrowLeft, Shield, CheckCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import "./LoginPage.css";
 
 export default function MfaSetupPage() {
   const [code, setCode] = useState("");
@@ -59,121 +60,265 @@ export default function MfaSetupPage() {
     }
   };
 
-  const QRIcon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z"
-      />
-    </svg>
-  );
-
   return (
-    <AuthCard
-      icon={QRIcon}
-      title="Configura tu MFA"
-      subtitle="Escanea este código QR con Google Authenticator u otra app de autenticación"
-    >
-      {setupUri && (
-        <div className="qr-container" role="img" aria-label="Código QR para configurar MFA">
-          <QRCodeSVG value={setupUri} size={180} />
-        </div>
-      )}
+    <div className="login-container">
+      {/* Elementos de fondo */}
+      <motion.div 
+        className="grid-background"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.2 }}
+        transition={{ duration: 1.5 }}
+      />
 
-      <form onSubmit={handleConfirm} className="mfa-form">
-        {error && (
-          <div className="error-message" role="alert">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
+      <motion.div 
+        className="tech-circle tech-circle-1"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 1, delay: 0.3 }}
+      />
+
+      <motion.div 
+        className="tech-circle tech-circle-2"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
+      />
+
+      {/* Botón de retroceso */}
+      <motion.button
+        className="back-button"
+        onClick={() => navigate("/")}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Volver al inicio"
+      >
+        <ArrowLeft size={20} />
+      </motion.button>
+
+      {/* Tarjeta de configuración MFA */}
+      <motion.div 
+        className="login-card"
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          delay: 0.1,
+        }}
+      >
+        {/* Logo con icono de QR */}
+        <motion.div 
+          className="logo-container"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <div className="logo-wrapper">
+            <div className="logo-glow"></div>
+            <motion.div 
+              className="logo-icon"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-              <path
-                d="M8 4.5V8.5M8 11V11.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span>{error}</span>
+              <QrCode size={60} color="#0ea5e9" />
+            </motion.div>
           </div>
+        </motion.div>
+
+        {/* Header */}
+        <motion.div 
+          className="login-header"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <h1>Configura tu MFA</h1>
+          <h2>Escanea este código QR con Google Authenticator u otra app de autenticación</h2>
+        </motion.div>
+
+        {/* Código QR */}
+        {setupUri && (
+          <motion.div 
+            className="qr-container"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              margin: "0 0 1.5rem 0",
+              padding: "1.5rem",
+              background: "#ffffff",
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)"
+            }}
+            role="img"
+            aria-label="Código QR para configurar MFA"
+          >
+            <QRCodeSVG value={setupUri} size={200} />
+          </motion.div>
         )}
 
-        <div className="form-group">
-          <label htmlFor="setup-code" className="sr-only">
-            Código de verificación
-          </label>
-          <input
-            id="setup-code"
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            className="mfa-input"
-            placeholder="000000"
-            value={code}
-            onChange={handleCodeChange}
-            maxLength={6}
-            aria-label="Código de verificación de 6 dígitos"
-            aria-describedby={error ? "setup-error" : undefined}
-            aria-invalid={!!error}
-            disabled={isLoading}
-          />
-          <p className="input-hint">
-            Ingresa el código de 6 dígitos que muestra tu app
-          </p>
-        </div>
-
-        <button
-          type="submit"
-          className="mfa-button"
-          disabled={isLoading || code.length !== 6}
-        >
-          {isLoading ? (
-            <span className="loading-spinner">
+        {/* Mensaje de error */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="error-message"
+              role="alert"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="spinner"
-                aria-hidden="true"
               >
-                <circle
-                  cx="10"
-                  cy="10"
-                  r="8"
+                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                <path
+                  d="M8 4.5V8.5M8 11V11.5"
                   stroke="currentColor"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
-                  strokeDasharray="50"
-                  strokeDashoffset="20"
                 />
               </svg>
-              Configurando...
-            </span>
-          ) : (
-            "Confirmar MFA"
+              <span>{error}</span>
+            </motion.div>
           )}
-        </button>
-      </form>
-    </AuthCard>
+        </AnimatePresence>
+
+        {/* Formulario */}
+        <form onSubmit={handleConfirm} className="login-form">
+          {/* Campo de código */}
+          <motion.div 
+            className="form-group"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <div className="input-wrapper">
+              <Shield className="input-icon" size={18} />
+              <input
+                id="setup-code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                className="login-input"
+                placeholder="000000"
+                value={code}
+                onChange={handleCodeChange}
+                maxLength={6}
+                disabled={isLoading}
+                style={{ 
+                  letterSpacing: "0.5em", 
+                  textAlign: "center", 
+                  fontSize: "1.5rem",
+                  fontFamily: "'SF Mono', 'Roboto Mono', monospace",
+                  fontWeight: 600
+                }}
+              />
+            </div>
+            <p className="input-hint" style={{
+              margin: "0.5rem 0 0 0",
+              fontSize: "0.75rem",
+              color: "#94a3b8",
+              textAlign: "center"
+            }}>
+              Ingresa el código de 6 dígitos que muestra tu app
+            </p>
+          </motion.div>
+
+          {/* Botón de confirmación */}
+          <motion.button
+            type="submit"
+            className="login-button"
+            disabled={isLoading || code.length !== 6}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            whileHover={{ y: -2 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {isLoading ? (
+              <span className="loading-spinner">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="spinner"
+                >
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray="50"
+                    strokeDashoffset="20"
+                  />
+                </svg>
+                Configurando...
+              </span>
+            ) : (
+              "Confirmar MFA"
+            )}
+          </motion.button>
+        </form>
+
+        {/* Footer */}
+        <motion.div
+          className="login-footer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <p>
+            <a href="/">Volver al inicio de sesión</a>
+          </p>
+        </motion.div>
+
+        {/* Nota de seguridad */}
+        <motion.div
+          className="security-note"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.9 }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7 1L2 3.5V6.5C2 9.85 4.14 12.935 7 13.75C9.86 12.935 12 9.85 12 6.5V3.5L7 1Z"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M5 7L6.5 8.5L9 5.5"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>Protege tu cuenta con autenticación de dos factores</span>
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }
