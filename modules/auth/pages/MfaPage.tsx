@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { confirmMfa } from "../services/authService";
 import { useToast } from "../components/Toast";
-import { Shield, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./LoginPage.css";
 
