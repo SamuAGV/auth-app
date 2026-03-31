@@ -1,4 +1,4 @@
-# ⚛️ React Cognito Auth - Frontend
+# ⚛️ React Cognito Auth - Fronten
 
 Aplicación React con TypeScript que implementa autenticación completa usando AWS Cognito, incluyendo Multi-Factor Authentication (MFA) mediante TOTP (Google Authenticator, Authy, etc.)
 
