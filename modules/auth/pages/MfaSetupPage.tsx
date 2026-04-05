@@ -3,7 +3,7 @@ import { confirmSignIn } from "aws-amplify/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { useToast } from "../components/Toast";
-import { QrCode, ArrowLeft, Shield, CheckCircle } from "lucide-react";
+import { QrCode, ArrowLeft, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./LoginPage.css";
 
