@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { LogOut, Plus, X } from "lucide-react";
 import UserTable from "../../users/components/UserTable";
 import UserForm from "../../users/components/UserForm";
 import { logout, getCurrentUserInfo } from "../../auth/services/authService";
@@ -144,68 +146,109 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-container">
+      {/* Elementos de fondo */}
+      <div className="grid-background" />
+      <div className="tech-circle tech-circle-1" />
+      <div className="tech-circle tech-circle-2" />
+
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Panel de Administración</h1>
-          <div className="header-info">
-            {currentUser && <span className="user-email">{currentUser.email}</span>}
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Panel de Administración
+          </motion.h1>
+          <motion.div 
+            className="header-info"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {currentUser && (
+              <span className="user-email">{currentUser.email}</span>
+            )}
             <button
-              className="btn btn-logout"
+              className="btn-logout"
               onClick={handleLogout}
             >
+              <LogOut size={16} style={{ marginRight: "8px" }} />
               Cerrar Sesión
             </button>
-          </div>
+          </motion.div>
         </div>
       </header>
 
       <main className="dashboard-main">
         <section className="dashboard-section">
-          <div className="section-header">
+          <motion.div 
+            className="section-header"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <h2>Gestión de Usuarios</h2>
             <button
-              className="btn btn-primary btn-add"
+              className="btn-add"
               onClick={openCreateForm}
               disabled={loading}
             >
-              + Crear Usuario
+              <Plus size={16} style={{ marginRight: "8px" }} />
+              Crear Usuario
             </button>
-          </div>
+          </motion.div>
 
-          <UserTable
-            users={users}
-            onEdit={handleEditUser}
-            onDelete={handleDeleteUser}
-            onToggleStatus={handleToggleStatus}
-            loading={loading}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <UserTable
+              users={users}
+              onEdit={handleEditUser}
+              onDelete={handleDeleteUser}
+              onToggleStatus={handleToggleStatus}
+              loading={loading}
+            />
+          </motion.div>
         </section>
       </main>
 
-      {showForm && (
-        <UserForm
-          user={editingUser}
-          onSubmit={editingUser ? handleUpdateUser : handleCreateUser}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingUser(undefined);
-          }}
-          loading={loading}
-        />
-      )}
+      <AnimatePresence>
+        {showForm && (
+          <UserForm
+            user={editingUser}
+            onSubmit={editingUser ? handleUpdateUser : handleCreateUser}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingUser(undefined);
+            }}
+            loading={loading}
+          />
+        )}
+      </AnimatePresence>
 
-      {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          <span className="toast-message">{toast.message}</span>
-          <button
-            className="toast-close"
-            onClick={() => setToast(null)}
-            aria-label="Cerrar"
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className={`toast toast-${toast.type}`}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+            transition={{ duration: 0.3 }}
           >
-            &times;
-          </button>
-        </div>
-      )}
+            <span className="toast-message">{toast.message}</span>
+            <button
+              className="toast-close"
+              onClick={() => setToast(null)}
+              aria-label="Cerrar"
+            >
+              <X size={16} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
