@@ -1,0 +1,11 @@
+/* Importa los estilos base de CategoriesPage */
+@import url('../../categories/styles/CategoriesPage.css');
+
+/* Estilos específicos para CoursesPage si son necesarios */
+.crud-table .description-cell {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #94a3b8;
+}

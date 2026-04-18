@@ -6,7 +6,6 @@ import { ToastProvider } from '../modules/auth/components/Toast'
 import './index.css'
 import App from './App.tsx'
 
-// Estas variables se tomarán del .env
 const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID;
 const userPoolClientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
 

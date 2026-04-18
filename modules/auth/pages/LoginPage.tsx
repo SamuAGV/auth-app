@@ -204,7 +204,6 @@ export default function LoginPage() {
           >
             <label htmlFor="email">Correo electrónico</label>
             <div className="input-wrapper">
-              <Mail className="input-icon" size={18} />
               <input
                 id="email"
                 type="email"
@@ -233,7 +232,6 @@ export default function LoginPage() {
               </a>
             </div>
             <div className="password-wrapper">
-              <Lock className="input-icon" size={18} />
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
