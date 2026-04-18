@@ -2,7 +2,7 @@ import { useState } from "react";
 import { login } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
-import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./LoginPage.css";
 
