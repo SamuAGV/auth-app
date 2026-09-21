@@ -2,7 +2,7 @@
 
 Aplicación React con TypeScript que implementa autenticación completa usando AWS Cognito, incluyendo Multi-Factor Authentication (MFA) mediante TOTP (Google Authenticator, Authy, etc.)
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 - [Características](#-características)
 - [Tecnologías](#-tecnologías)
 - [Requisitos Previos](#-requisitos-previos)
